@@ -15,6 +15,8 @@
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+    <!--seccion para una hoja de estilos-->
+    @yield('styles')
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
@@ -86,7 +88,9 @@
                </main>
             </div>
         </div>
-
     </div>
+
+    @yield('scripts')
+
 </body>
 </html>

@@ -11289,3 +11289,7 @@ textarea.form-control-lg {
 body {
   font-family: "Didact Gothic", sans-serif;
 }
+
+trix-editor {
+  min-height: 400px;
+}
