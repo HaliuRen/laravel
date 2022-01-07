@@ -15,7 +15,7 @@ class RecetaController extends Controller
     public function __construct()
     {
         //autenticacion
-        $this->middleware('auth');
+        $this->middleware('auth', ['except' => 'show']);
     }
 
     /**
@@ -72,7 +72,7 @@ class RecetaController extends Controller
             'categoria' => 'required',
         ]);
 
-        //obteniendo la ruta de ka imagen
+        //obteniendo la ruta de la imagen
         $ruta_imagen = $request['imagen']->store('upload-recetas','public');
 
         // Resize de la imagen
@@ -80,14 +80,23 @@ class RecetaController extends Controller
         $img->save();// guardando en el disco duro del servidor
 
         
-        //almacenando en la bd (sin modelo)
-        DB::table('recetas')->insert([
-            'titulo' => $data['titulo'],
-            'preparacion' => $data['preparacion'],
-            'ingredientes' => $data['ingredientes'],
-            'imagen' => $ruta_imagen,
-            'user_id' => Auth::user()->id, //funcionn que retorna el usuario autenticado
-            'categoria_id' => $data['categoria'],
+        // //almacenando en la bd (sin modelo)
+        // DB::table('recetas')->insert([
+        //     'titulo' => $data['titulo'],
+        //     'preparacion' => $data['preparacion'],
+        //     'ingredientes' => $data['ingredientes'],
+        //     'imagen' => $ruta_imagen,
+        //     'user_id' => Auth::user()->id, //funcionn que retorna el usuario autenticado
+        //     'categoria_id' => $data['categoria'],
+        // ]);
+
+        // almacenar en la bd con modelo
+        auth()->user()->recetas()->create([
+            'titulo'=> $data['titulo'],
+            'preparacion'=> $data['preparacion'],
+            'ingredientes'=> $data['ingredientes'],
+            'imagen'=> $ruta_imagen,
+            'categoria_id'=>$data['categoria']
         ]);
 
         // Redireccionar
@@ -104,7 +113,10 @@ class RecetaController extends Controller
      */
     public function show(Receta $receta)
     {
-        //
+        // Algunos metodos para obtener una receta
+        //$receta = Receta::find($receta);
+
+        return view('recetas.show', compact('receta'));
     }
 
     /**
