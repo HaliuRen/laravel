@@ -58,6 +58,7 @@ class RecetaController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    /* ALMACENANDO Y VALIDANDO */
     public function store(Request $request)
     {
 
@@ -127,7 +128,10 @@ class RecetaController extends Controller
      */
     public function edit(Receta $receta)
     {
-        //
+        //obteniendo las categorias con modelo
+        $categorias = CategoriaReceta::all(['id', 'nombre']);
+
+        return view('recetas.edit', compact('categorias', 'receta'));
     }
 
     /**
@@ -139,7 +143,40 @@ class RecetaController extends Controller
      */
     public function update(Request $request, Receta $receta)
     {
-        //
+
+        // Revisar el policy
+        $this->authorize('update', $receta);
+
+        //validacion
+        $data = $request->validate([
+            'titulo' => 'required|min:6',
+            'preparacion' => 'required',
+            'ingredientes' => 'required',
+            'categoria' => 'required',
+        ]);
+
+        // Asignar los valores
+        $receta->titulo = $data['titulo'];
+        $receta->preparacion = $data['preparacion'];
+        $receta->ingredientes = $data['ingredientes'];
+        $receta->categoria_id = $data['categoria'];
+
+        // Si el usuario sube una imagen
+        if (request('imagen')) {
+            //obteniendo la ruta de la imagen
+            $ruta_imagen = $request['imagen']->store('upload-recetas','public');
+
+            // Resize de la imagen
+            $img = Image::make( public_path("storage/{$ruta_imagen}"))->fit(1000,550);
+
+            // Asignar al objeto
+            $receta->imagen = $ruta_imagen;
+        }
+
+        $receta->save();
+
+        // redireccionar
+        return redirect()->action('RecetaController@index');
     }
 
     /**
@@ -150,6 +187,12 @@ class RecetaController extends Controller
      */
     public function destroy(Receta $receta)
     {
-        //
+        // Ejecutando el Policy
+        $this->authorize('delete', $receta);
+
+        // Eliminar la receta
+        $receta->delete();
+
+        return redirect()->action('RecetaController@index');
     }
 }
